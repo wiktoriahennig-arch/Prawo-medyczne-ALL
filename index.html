@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Egzamin Treningowy: Prawo Medyczne (Baza 100 Pytań)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-teal-600 to-cyan-700 text-white shadow-md py-6 px-4 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Prawo Medyczne – Oficjalna Baza 🎓</h1>
+                <p class="text-teal-100 text-sm mt-1">Trening przedegzaminacyjny: Pytania 1 - 100 (Wersja Oryginalna)</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-lg p-3 text-center border border-white/20 min-w-[180px]">
+                <div class="text-xs uppercase tracking-wider text-teal-200 font-semibold">Twój wynik</div>
+                <div class="text-2xl font-black mt-1" id="score-display">0 / 100</div>
+                <div class="text-[10px] text-teal-100 mt-1" id="percent-display">Postęp: 0%</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-8">
+        
+        <!-- Controls & Statistics -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-8 flex flex-wrap gap-4 items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex h-3.5 w-3.5 rounded-full bg-teal-500 animate-pulse"></span>
+                <span class="text-sm font-medium text-slate-600" id="stats-counter">Rozwiązano: 0 z 100 pytań</span>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="resetTest()" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-red-600 hover:bg-red-50 border border-slate-200 rounded-lg transition-colors">
+                    Resetuj test
+                </button>
+                <button onclick="showAllCorrectAnswers()" class="px-4 py-2 text-sm font-semibold text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
+                    Pokaż klucz odpowiedzi
+                </button>
+            </div>
+        </div>
+
+        <!-- Questions Container -->
+        <div id="questions-container" class="space-y-6">
+            <!-- Questions injected via JS -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-center py-6 mt-12 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 text-xs space-y-2">
+            <p>Aplikacja treningowa przygotowana w 100% na podstawie nadesłanej bazy pytań z prawa medycznego.</p>
+            <p>Wszystkie pytania, odpowiedzi oraz klucz rozwiązań zachowują oryginalną strukturę pliku źródłowego.</p>
+        </div>
+    </footer>
+
+    <!-- Quiz Data & Logic -->
+    <script>
+        const quizData = [
+            {
+                id: 1,
+                question: "Zapobieganiu oraz zwalczaniu zakażeń i chorób zakaźnych u ludzi, obowiązkową hospitalizacją objęte są osoby:",
+                correct: "osoby chore na gruźlice w okresie prątkowania",
+                options: ["osoby chore na gruźlice w okresie prątkowania", "boreliozę", "grypę"]
+            },
+            {
+                id: 2,
+                question: "Osoba chora psychicznie może być przyjęta do szpitala psych. w trybie nagłym, bez zgody:",
+                correct: "tylko, gdy jej dotychczasowe zachowanie wskazuje, że przez chorobę zagraża bezpośrednio własnemu życiu lub zdrowiu innych osób",
+                options: ["wawsze pod warunkiem poddania jej przymusowi w postaci podania leków", "zawsze wymaga zgody sądu opiekuńczego", "tylko, gdy jej dotychczasowe zachowanie wskazuje, że przez chorobę zagraża bezpośrednio własnemu życiu lub zdrowiu innych osób"]
+            },
+            {
+                id: 3,
+                question: "Który z podstawowych organów jest obowiązany do ogłaszania Programu Szczepień Ochronnych przewidzianego na dany rok ?",
+                correct: "dokument dokument ten ogłasza Główny Inspektor Sanitarny w dzienniku urzędowym Ministra Zdrowia",
+                options: ["dokument dokument ten ogłasza Główny Inspektor Sanitarny w dzienniku urzędowym Ministra Zdrowia", "polskie prawo nie przewiduje takiego dokumentu/programu", "ogłoszenie programu leży w gestii Ministra Zdrowia"]
+            },
+            {
+                id: 4,
+                question: "Narodowy Program Ochrony Zdrowia Publicznego",
+                correct: "koordynuje wykonawczo Minister Zdrowia",
+                options: ["koordynuje wykonawczo Minister Zdrowia", "nigdy nie został w Polsce przyjęty", "nie jest aktem prawnym"]
+            },
+            {
+                id: 5,
+                question: "O zastosowaniu przymusu na gruncie ustawy o zapobieganiu zakażeń (..) decyduje",
+                correct: "Lekarz",
+                options: ["sąd", "policja", "Lekarz"]
+            },
+            {
+                id: 6,
+                question: "Przerwanie ciąży może być dokonane wyłącznie przez lekarza, gdy zagraża życiu ciężarnej",
+                correct: "można wykonać wyłącznie w szpitalu",
+                options: ["można wykonać wyłącznie w szpitalu", "można wykonać w szpitalu i poza szpitalem", "przepisy nie określają miejsca"]
+            },
+            {
+                id: 7,
+                question: "Sprzeciw osoby pełnoletniej i nieubezwłasnowolnionej na pobranie komórek, narządów i tkanek po śmierci , może zostać wyrażony w następującej formie:",
+                correct: "zgłoszenia do Centralnego Rejestru Sprzeciwów",
+                options: ["zgłoszenia sprzeciwu do Centralnego Rejestru Dawców i Biorców", "Konkludentnej (dorozumianej)", "zgłoszenia do Centralnego Rejestru Sprzeciwów"]
+            },
+            {
+                id: 8,
+                question: "Przerwanie ciąży, gdy podejrzewamy że ciąża powstała w wyniku czynu zabronionego",
+                correct: "może być dokonana jeśli od początku ciąży nie upłynęło więcej jak 12 tyg",
+                options: ["może być dokonana jeśli od początku ciąży nie upłynęło więcej jak 12 tyg", "może być dokonana jeśli sąd rodzinny wyrazi zgodę", "nie jest dopuszczalne w Polsce"]
+            },
+            {
+                id: 9,
+                question: "Przymus bezpośredni w formie unieruchomienia lub izolacji, w świetle ustawy o ochronie zdrowia psychicznego stosowany może być :",
+                correct: "przez 4 godziny następnie przedłużane na kolejne okresy 6-godzinne",
+                options: ["przepisy nie regulują tej kwestii", "przez 4 godziny następnie przedłużane na kolejne okresy 6-godzinne", "jednorazowo przez 12 h, niezależnie od formy zastosowanego przymusu"]
+            },
+            {
+                id: 10,
+                question: "W przypadku pełnoletniej, przytomnej i nieubezwłasnowolnionej kobiety dla zabiegu przerwania ciąży",
+                correct: "wymagana jest jej pisemna zgoda",
+                options: ["możliwe jest wyrażenie zgody przez współmałżonka", "zgodę wyraża zawsze sąd opiekuńczy", "wymagana jest jej pisemna zgoda"]
+            },
+            {
+                id: 11,
+                question: "Przymus bezpośredni można stosować m.in.:",
+                correct: "gdy osoba z zaburzeniami psychiatrycznymi dopuszcza się zamachu przeciwko życiu lub zdrowiu własnemu lub innej osoby",
+                options: ["gdy osoba z zaburzeniami odmawia składania wyjaśnień Rzecznikowi Praw Pacjenta Szpitala Psychiatrycznego", "gdy osoba z zaburzeniami psychiatrycznymi dopuszcza się zamachu przeciwko życiu lub zdrowiu własnemu lub innej osoby", "wobec osoby z zaburzeniami psychicznymi, która odmawia poddania się poleceniom porządkowym wydawanym przez pielęgniarkę lub lekarza"]
+            },
+            {
+                id: 12,
+                question: "Do lekarza zgłasza się matka z chorą, pełnoletnią córką. Matka żąda swej obecności przy przeprowadzeniu wywiadu lekarskiego z córką. Czy obecność przy wywiadzie lekarskim jest dopuszczalna ?",
+                correct: "tak, pod warunkiem wyrażenia zgody przez córkę i lekarza",
+                options: ["tak, pod warunkiem zgody córki", "nigdy, ponieważ matka może poznać informacje wchodzące w skład tajemnicy lekarskiej", "tak, pod warunkiem wyrażenia zgody przez córkę i lekarza"]
+            },
+            {
+                id: 13,
+                question: "Do szpital zgłasza się kobieta, dla której jedyną szansą przeżycia jest obecnie przeszczepienie szpiku. Dawcą może być małoletni syn kobiety. Przeszczep jest możliwy",
+                correct: "jest możliwe po uzyskaniu zgody małoletniego i Komisji Etycznej Krajowej Rady Transplantacyjnej oraz zgody sądu",
+                options: ["jest możliwe w sytuacji bezpośredniego zagrożenia życia matki oraz gdy nie znajdą dawcy", "jest możliwe po uzyskaniu zgody małoletniego i Komisji Etycznej Krajowej Rady Transplantacyjnej oraz zgody sądu", "nie jest możliwe"]
+            },
+            {
+                id: 14,
+                question: "Niepożądany odczyn poszczepienny winien być zgłoszony przez lekarza w ciągu",
+                correct: "24 h",
+                options: ["24 h", "48 h", "12 h"]
+            },
+            {
+                id: 15,
+                question: "Zgodnie z ustawą z 1 lipca 2005 r. o pobieraniu, przechowaniu i przeszczepianiu komórek, tkanek i narządów, w przypadku żywych dawców poniżej 18 roku życia",
+                correct: "dawstwo narządów nie jest możliwe",
+                options: ["dawstwo narządów nie jest możliwe", "dawstwo narządów jest jedynie na rzecz rodzeństwa, gdy istnieje niebezpieczeństwo utraty życia kandydata na biorcę a pozyskanie narządu ze zwłok nie jest możliwe", "dawstwo szpiku jest zawsze wykluczone"]
+            },
+            {
+                id: 16,
+                question: "Czy wobec osoby, u której podejrzewa się wystąpienie choroby szczególnie zakaźnej, zagrażającej zdrowiu i życiu można zastosować środki przymusu bezpośredniego celem zmuszenia jej do poddania się czynnościom leczniczym?",
+                correct: "tak, pozwala na to ustawa o zwalczaniu i zapobieganiu zakażeń u ludzi",
+                options: ["nie, polskie prawo nie reguluje tej kwestii", "nie, przymus bezpośredni może być zastosowany jedynie w placówkach psychiatrycznych", "tak, pozwala na to ustawa o zwalczaniu i zapobieganiu zakażeń u ludzi"]
+            },
+            {
+                id: 17,
+                question: "Pobranie tkanek, narządów i komórek w celach transplantacyjnych ze zwłok może nastąpić :",
+                correct: "po stwierdzeniu zgonu, zgodnie z przepisami ustawy o zawodach lekarza i lekarza dentysty",
+                options: ["jeśli osoby bliskie dawcy, nie sprzeciwiają się eksplantacji", "po stwierdzeniu zgonu, zgodnie z przepisami ustawy o zawodach lekarza i lekarza dentysty", "zawsze pod warunkiem wyrażenia zgody przez sąd rejonowy właściwy dla miejsca zamieszkania dawcy"]
+            },
+            {
+                id: 18,
+                question: "Ilość sędziów Europejskiego Trybunału praw człowieka jest równa :",
+                correct: "Liczbie państw członkowskich Rady Europy",
+                options: ["Liczbie państw członkowskich Rady Europy", "Jest ściśle określona i wynosi 15 osób", "zależy od uchwały Rady Europy"]
+            },
+            {
+                id: 19,
+                question: "Prawa gwarantowane przez Europejską Konwencję to :",
+                correct: "prawo do rzetelnego procesu sądowego",
+                options: ["Brak ograniczeń co do praw", "prawo do rzetelnego procesu sądowego", "zależy od uchwały Rady Europy"]
+            },
+            {
+                id: 20,
+                question: "Ogólny zakaz dyskryminacji regulowany jest :",
+                correct: "w protokole 12",
+                options: ["w protokole 7", "w protokole 12", "w protokole 6"]
+            },
+            {
+                id: 21,
+                question: "Zwolnienie z opłaty za wpis do Rejestru Podmiotów Wykonujących Działalność Leczniczą dotyczy",
+                correct: "dokumentu potwierdzającego zawarcie umowy OC (zmiany OC)",
+                options: ["dokumentu potwierdzającego zawarcie umowy OC (zmiany OC)", "zmiany nazwy firmy", "zmiany formy działalności"]
+            },
+            {
+                id: 22,
+                question: "Powodem publicznej debaty nad prawami pacjenta stało się w latach 60 następujące wydarzenie",
+                correct: "Ujawnienie w USA do celów naukowych prowadzonych na pacjentach bez ich zgody",
+                options: ["Uchwalenie Powszechnej Deklaracji Praw Człowieka", "Ujawnienie w USA do celów naukowych prowadzonych na pacjentach bez ich zgody"]
+            },
+            {
+                id: 23,
+                question: "Pierwsza koncepcja praw pacjenta znalazła swoje miejsce",
+                correct: "w ustawie o zakładach opieki zdrowotnej",
+                options: ["w ustawie o zawodzie lekarza i lekarza dentysty", "w ustawie o zakładach opieki zdrowotnej", "w ustawie o samorządzie zawodowym pielęgniarki i położnej"]
+            },
+            {
+                id: 24,
+                question: "Aktualnie obowiązującym aktem prawnym dotyczącym praw pacjenta jest:",
+                correct: "Ustawa o prawach pacjenta i Rzeczniku praw pacjenta",
+                options: ["Ustawa o prawach pacjenta i Rzeczniku praw pacjenta", "Karta praw pacjenta", "jest to akt prawny zależny od podmiotu leczniczego"]
+            },
+            {
+                id: 25,
+                question: "Pierwszym państwem które uregulowało prawa pacjenta",
+                correct: "Francja",
+                options: ["Grecja", "Wielka Brytania", "Francja"]
+            },
+            {
+                id: 26,
+                question: "Odpowiedzialność cywilna pielęgniarki ma:",
+                correct: "charakter majątkowy",
+                options: ["charakter majątkowy", "charakter uznaniowy", "odpowiedzialność regulują odpowiednio przepisy kodeksowe"]
+            },
+            {
+                id: 27,
+                question: "Odpowiedzialność karna pielęgniarki to:",
+                correct: "odpowiedzialność za popełnione przestępstwo określone przez ustawodawcę",
+                options: ["odpowiedzialność za popełnione przestępstwo określone przez ustawodawcę", "odpowiedzialność majątkowa"]
+            },
+            {
+                id: 28,
+                question: "Odpowiedzialność zawodowa ponoszona jest:",
+                correct: "przed powołanymi organami samorządowymi pielęgniarek i położnych",
+                options: ["przed organami administracji publicznej", "przed sądami powszechnymi", "przed powołanymi organami samorządowymi pielęgniarek i położnych"]
+            },
+            {
+                id: 29,
+                question: "Ponoszenie odpowiedzialności zawodowej to naruszenie:",
+                correct: "zasad etyki zawodowej oraz ustawy o zawodzie pielęgniarki i położnej",
+                options: ["zasad etyki zawodowej oraz ustawy o zawodzie pielęgniarki i położnej", "przepisów określonych przez ustawodawcę", "przepisów kodeksu pracy"]
+            },
+            {
+                id: 30,
+                question: "Pielęgniarka w ramach indywidualnych praktyk na wezwanie może wykonywać zawód :",
+                correct: "tylko poza terenem podmiotu leczniczego",
+                options: ["tylko poza terenem podmiotu leczniczego", "poza terenem podmiotu leczniczego", "(miejsce wykonywania) zależne od zapisu regulaminu organizacyjnego"]
+            },
+            {
+                id: 31,
+                question: "Grupowa praktyka zawodowa pielęgniarki może funkcjonować w formie :",
+                correct: "spółki partnerskiej",
+                options: ["spółki z o.o.", "spółki akcyjnej", "spółki partnerskiej"]
+            },
+            {
+                id: 32,
+                question: "W ramach grupowej praktyki pielęgniarskiej:",
+                correct: "wolno zatrudniać tylko osoby wykonujące zawód pielęgniarki",
+                options: ["wolno zatrudniać inne osoby wykonujące zawód medyczny", "nie wolno zatrudniać innych osób wykonujących zawód medyczny", "wolno zatrudniać tylko osoby wykonujące zawód pielęgniarki"]
+            },
+            {
+                id: 33,
+                question: "Prawo poszanowania intymności oraz prawo godności należy",
+                correct: "do praw uregulowanych w ustawie o prawach pacjenta i Rzeczniku Praw Pacjenta",
+                options: ["do praw uregulowanych w ustawie o prawach pacjenta i Rzeczniku Praw Pacjenta", "do kodeksów zawodów medycznych", "do sfery dóbr osobistych pacjenta i stanowi podmiot ochrony w art. 23 k.c."]
+            },
+            {
+                id: 34,
+                question: "Ile ogólnych zasad ochrony danych osobowych wskazuje RODO",
+                correct: "7 zasad",
+                options: ["7 zasad", "2 zasady", "5 zasad"]
+            },
+            {
+                id: 35,
+                question: "W zakresie naruszenia przepisów o ochronie danych osobowych można rozpatrywać odpowiedzialność",
+                correct: "odpowiedzialność zawodową",
+                options: ["tylko odpowiedzialność karną", "odpowiedzialność zawodową"]
+            },
+            {
+                id: 36,
+                question: "Zdarzenie medyczne to:",
+                correct: "uszkodzenie ciała, rozstrój zdrowia lub śmierci pacjenta",
+                options: ["uszkodzenie ciała, rozstrój zdrowia lub śmierci pacjenta", "tylko śmierć pacjenta", "tylko zakażenie czynnikiem chorobotwórczym"]
+            },
+            {
+                id: 37,
+                question: "W przypadku zakażenia, rozstroju zdrowia lub uszkodzenia ciała pacjenta, wysokość odszkodowania wynosi:",
+                correct: "zależy od decyzji komisji ds. zdarzeń medycznych",
+                options: ["300.000", "zależy od decyzji komisji ds. zdarzeń medycznych", "100.000"]
+            },
+            {
+                id: 38,
+                question: "Błąd medyczny negatywny to:",
+                correct: "stwierdzenie braku choroby u chorego pacjenta",
+                options: ["stwierdzenie choroby u zdrowego pacjenta", "stwierdzenie braku choroby u chorego pacjenta"]
+            },
+            {
+                id: 39,
+                question: "Kwalifikacje zawodowe pielęgniarki to:",
+                correct: "to zestaw umiejętności i wiedzy niezbędnej do wykonywania zawodu pielęgniarki",
+                options: ["to zestaw umiejętności i wiedzy niezbędnej do wykonywania zawodu pielęgniarki", "to posiadane doświadczenie zawodowe", "to posiadane umiejętności"]
+            },
+            {
+                id: 40,
+                question: "Przed wzniesieniem skargi do Europejskiego Trybunału Sprawiedliwości",
+                correct: "morzą być wykorzystane krajowe środki odwoławcze",
+                options: ["musi być złożona przez stronę zainteresowaną", "musi być złożona po dokonaniu odpowiednich opłat", "morzą być wykorzystane krajowe środki odwoławcze"]
+            },
+            {
+                id: 41,
+                question: "Właściwym miejscem złożenia wniosku o ustalenie zdarzenia medycznego jest:",
+                correct: "UW właściwy dla podmiotu leczniczego",
+                options: ["UW właściwy dla podmiotu leczniczego", "UW właściwy dla miejsca zamieszkania poszkodowanego", "całkowita dowolność strony poszkodowanej"]
+            },
+            {
+                id: 42,
+                question: "Wojewódzka komisja do spraw orzekania o zdarzeniach medycznych orzeka:",
+                correct: "stwierdza czy zdarzenie medyczne miało miejsce",
+                options: ["o winie podmiotu leczniczego", "o winie personelu medycznego", "stwierdza czy zdarzenie medyczne miało miejsce"]
+            },
+            {
+                id: 43,
+                question: "Wizytacja praktyk w celu oceny wykonywania zawodu pielęgniarki lub położonej w ramach praktyki zawodowej wpisanej do rejestru podmiotów wykonujących działalność leczniczą jest dokonywana przez:",
+                correct: "pielęgniarki lub położne upoważnione przez okręgową radę pielęgniarek i położnych właściwą ze względu na miejsce wykonywania zawodu",
+                options: ["pracowników okręgowej izby właściwej ze względu na miejsce wykonywania zawodu wyznaczonych przez okręgową radę", "pielęgniarki lub położne upoważnione przez okręgową radę pielęgniarek i położnych właściwą ze względu na miejsce wykonywania zawodu", "osoby wyznaczone przez Naczelna Radę Pielęgniarek i Położnych spośród osób wskazanych przez okręgową radę właściwą ze względu na miejsce wykonywania zawodu"]
+            },
+            {
+                id: 44,
+                question: "Konsekwencją prawną błędu medycznego jest:",
+                correct: "odpowiedzialność cywilna deliktowa",
+                options: ["odpowiedzialność zawodowa", "tylko odpowiedzialność karna", "odpowiedzialność cywilna deliktowa"]
+            },
+            {
+                id: 45,
+                question: "Każdy pracownik przetwarzający dane osobowe powinien",
+                correct: "odpowiedź A i B są poprawne",
+                options: ["zapoznać się z dokumentacją obowiązującą w podmiocie leczniczym i podpisać oświadczenie, w którym zobowiązuje się przestrzegać przyjętych w organizacji rozwiązań w przedmiocie ochrony danych osobowych", "otrzymać upoważnienie do przetwarzania danych osobowych określające zakres danych, które ma prawo przetwarzać w ramach pełnionych przez niego obowiązków służbowych", "odpowiedź A i B są poprawne"]
+            },
+            {
+                id: 46,
+                question: "Odpowiedzialność kontraktowa pielęgniarki to odpowiedzialność",
+                correct: "będąca konsekwencją wyrządzonej pacjentowi szkody w następstwie niewykonania lub nienależytego wykonania zobowiązania w sytuacji gdy pielęgniarka zawarła umowę z pacjentem",
+                options: ["będąca konsekwencją wyrządzonej pacjentowi szkody w następstwie niewykonania lub nienależytego wykonania zobowiązania w sytuacji gdy pielęgniarka zawarła umowę z pacjentem", "polegająca na wyrządzeniu pacjentowi szkody czynem niedozwolonym", "zależy od decyzji sądu cywilnego"]
+            },
+            {
+                id: 47,
+                question: "Konwencja o ochronie praw człowieka i podstawowych wolności w Polsce obowiązuje od:",
+                correct: "1993",
+                options: ["1948", "1993", "1995"]
+            },
+            {
+                id: 48,
+                question: "Co do zasady lekarz lub pielęgniarka :",
+                correct: "mogą udzielać wszelkich informacji związanych z pacjentem osobie pozostającym w związku małżeńskim pod warunkiem uzyskania uprzedniej zgody pacjenta",
+                options: ["mogą udzielać wszelkich informacji związanych z pacjentem osobie pozostającym w związku małżeńskim pod warunkiem uzyskania uprzedniej zgody pacjenta", "mogą udzielać wszelkich informacji związanych z pacjentem osobie pozostającym w związku małżeńskim pod warunkiem że każdorazowo zgodę wyda właściwy organ", "mogą udzielać wszelkich informacji związanych z pacjentem osobie pozostającym w związku małżeńskim"]
+            },
+            {
+                id: 49,
+                question: "Tajemnica zawodowa pielęgniarki:",
+                correct: "istnieje także po śmierci pacjenta, ale są prawne okoliczności wyłączające jej dochowania",
+                options: ["jest nieograniczona w czasie i nie istnieją okoliczności wyłączające jej zachowania", "trwa tylko przez okres życia pacjenta", "istnieje także po śmierci pacjenta, ale są prawne okoliczności wyłączające jej dochowania"]
+            },
+            {
+                id: 50,
+                question: "Pacjent podmiotu leczniczego wykonujący działalność leczniczą rodzaju stacjonarne i całodobowe świadczenia zdrowotne...ma prawo :",
+                correct: "do kontaktu osobistego, telefonicznego lub korespondencyjnego z innymi osobami lub do odmowy kontaktu",
+                options: ["do kontaktu osobistego, telefonicznego lub korespondencyjnego z innymi osobami lub do odmowy kontaktu", "do kontaktu z osobami bliskimi ale tylko po zgodzie kierownika oddziału", "do kontaktu osobistego, telefonicznego lub korespondencyjnego z innymi osobami ale nie do odmowy do kontaktu z nimi"]
+            },
+            {
+                id: 51,
+                question: "Dodatkowa opieka pielęgnacyjna",
+                correct: "jest prawem pacjenta niezależnie od świadczeń zdrowotnych",
+                options: ["występuje wyłącznie w niepublicznych placówkach udzielających świadczenia zdrowotne", "jest prawem pacjenta niezależnie od świadczeń zdrowotnych", "świadczona jest wyłącznie przez pielęgniarki ze specjalizacją"]
+            },
+            {
+                id: 52,
+                question: "Czas przechowywania dokumentacji medycznej przez upoważnione podmioty wynosi:",
+                correct: "20 lat od końca roku, w którym dokonano ostatniego wpisu",
+                options: ["a. 20 lat od dokonania ostatniego wpisu", "b. 30 lat od dokonania ostatniego wpisu", "c. 20 lat od końca roku, w którym dokonano ostatniego wpisu"]
+            },
+            {
+                id: 53,
+                question: "Czy pielęgniarka może odmówić wykonania zlecenia lekarskiego...",
+                correct: "tak, jeśli jest to niezgodne z jej sumieniem lub jej kwalifikacjami ale musi być złożona na piśmie",
+                options: ["nie, pielęgniarka zawsze ma obowiązek wykonać zlecenie lub inne świadczenie zdrowotne", "tak, za zgodą ordynatora", "tak, jeśli jest to niezgodne z jej sumieniem lub jej kwalifikacjami ale musi być złożona na piśmie"]
+            },
+            {
+                id: 54,
+                question: "Osoba obwiniana w toku postępowania z zakresu odpowiedzialności zawodowej ...",
+                correct: "może mieć do dwóch obrońców spośród pielęgniarek, adwokatów i radców prawnych",
+                options: ["może mieć do dwóch obrońców, którymi muszą być pielęgniarki ze specjalizacją", "może mieć do dwóch obrońców spośród pielęgniarek, adwokatów i radców prawnych", "ma obowiązek korzystania z obrońców"]
+            },
+            {
+                id: 55,
+                question: "Mandat w organie izby przed upływem kadencji wygasa w skutek :",
+                correct: "wykreślenia z rejestru pielęgniarek i położnych",
+                options: ["mandat nie wygasa", "wykreślenia z rejestru pielęgniarek i położnych", "wszczęcia przeciwko osobie go sprawującej postępowania"]
+            },
+            {
+                id: 56,
+                question: "O obowiązku leczenia odwykowego decyduje:",
+                correct: "sąd rejonowy",
+                options: ["prokuratura", "sąd rejonowy", "sąd najwyższy"]
+            },
+            {
+                id: 57,
+                question: "Rehabilitację osób uzależnionych os narkotyków",
+                correct: "prowadzi lekarz posiadający specjalizację w dziedzinie psychiatrii",
+                options: ["prowadzi wyłącznie lekarz", "prowadzi lekarz posiadający specjalizację w dziedzinie psychiatrii", "prowadzi się wyłącznie w ośrodkach zamkniętych"]
+            },
+            {
+                id: 58,
+                question: "Leczenie substytucyjne:",
+                correct: "stosowanie, w ramach programu leczenia uzależnienia, produktów leczniczych...",
+                options: ["prowadzone jest w każdym podmiocie leczniczym, bez ograniczeń formalnych", "stosowanie, w ramach programu leczenia uzależnienia, produktów leczniczych...", "to inaczej leczenie osób uzależnionych"]
+            },
+            {
+                id: 59,
+                question: "Przymus bezpośredni...można stosować",
+                correct: "tylko w wyjątkowych przypadkach na izbie wytrzeźwień lub komisariacie policji",
+                options: ["w każdym przypadku ....", "tylko w wyjątkowych przypadkach na izbie wytrzeźwień lub komisariacie policji", "wedle uznania kuratora"]
+            },
+            {
+                id: 60,
+                question: "Do organów naczelnej izby pielęgniarek i położnych NIE należy",
+                correct: "naczelny zjazd",
+                options: ["naczelna rada", "naczelna komisja rewizyjna", "naczelny zjazd"]
+            },
+            {
+                id: 61,
+                question: "Dokumentacja medyczna ma być prowadzona w formie:",
+                correct: "elektronicznej z dopuszczeniem formy papierowej gdy nie ma możliwości technicznych lub organizacyjnych do prowadzenia jej w ten sposób, wtedy można prowadzić ją w formie papierowej.",
+                options: ["elektronicznej z wykluczeniem formy papierowej", "elektronicznej z dopuszczeniem formy papierowej gdy nie ma możliwości technicznych lub organizacyjnych do prowadzenia jej w ten sposób, wtedy można prowadzić ją w formie papierowej.", "zawsze w formie papierowej i pomocniczo w elektronicznej"]
+            },
+            {
+                id: 62,
+                question: "Partnerka zmarłego pacjenta żąda ujawnienia tajemnicy dotyczącej choroby. Za życia pacjent nie chciał aby ona wiedziała. Lekarz:",
+                correct: "nie może ujawnić tajemnicy lekarskiej w żadnych okolicznościach",
+                options: ["nie może ujawnić tajemnicy lekarskiej w żadnych okolicznościach", "może udzielić informacji gdy partnerka też jest pacjentką lekarza", "może udzielić o ile nie sprzeciwi się temu nikt z bliskich zmarłego"]
+            },
+            {
+                id: 63,
+                question: "Prawo wykonywania zawodu przyznaje",
+                correct: "właściwa okręgowa rada pielęgniarek i położnych",
+                options: ["właściwa okręgowa rada pielęgniarek i położnych", "naczelna rada pielęgniarek i położnych", "właściwa izba pielęgniarek i położnych"]
+            },
+            {
+                id: 64,
+                question: "Kara za przewinienie zawodowe w rozumieniu ustawy o samorządzie pielęgniarek i położnych",
+                correct: "nagana",
+                options: ["nagana", "ograniczenie zakresu czynności", "areszt"]
+            },
+            {
+                id: 65,
+                question: "Bieg kary zawieszenia prawa wykonywania zawodu rozpoczyna się:",
+                correct: "Z dniem uprawomocnienia się orzeczenia",
+                options: ["z chwilą wydania orzeczenia I instancji", "kara taka nie istnieje", "Z dniem uprawomocnienia się orzeczenia"]
+            },
+            {
+                id: 66,
+                question: "Przepis prawny",
+                correct: "wypowiedź sformułowana w języku prawnym",
+                options: ["każdy akt parlamentu", "kluczowe pojęcie koncepcji prawnonaturalnych ujmowania prawa", "wypowiedź sformułowana w języku prawnym"]
+            },
+            {
+                id: 67,
+                question: "Inicjatywy ustawodawczej nie ma",
+                correct: "14 posłów",
+                options: ["prezydent RP", "senat", "14 posłów"]
+            },
+            {
+                id: 68,
+                question: "Norma dobowa czasu pracy pielęgniarki wg ustawy wynosi",
+                correct: "7:35/24h",
+                options: ["7:35/24h", "7:45/24h", "7:35/48 h"]
+            },
+            {
+                id: 69,
+                question: "Proszę uszeregować akty prawne zgodne z hierarchią",
+                correct: "konstytucja, umowy, ratyfikowane umowy międzynarodowe oraz rozporządzenia",
+                options: ["dyrektywy unijne, ustawy ratyfikowane, umowy międzynarodowe oraz rozporządzenia, konstytucja, akty prawa miejskiego", "konstytucja, umowy, ratyfikowane umowy międzynarodowe oraz rozporządzenia", "akty prawa miejskiego, rozporządzenia unijne, nieratyfikowane umowy międzynarodowe"]
+            },
+            {
+                id: 70,
+                question: "Udzielenie świadczeń medycznych pacjentowi poniżej 16 r.ż",
+                correct: "wymaga zgody zastępczej",
+                options: ["wyłącznie przez sąd opiekuńczy", "wymaga zgody zastępczej", "dokonane musi być z należytą starannością i za zgodą tego pacjenta"]
+            },
+            {
+                id: 71,
+                question: "Rozporządzenie to:",
+                correct: "akt wykonawczy do ustawy",
+                options: ["akt wykonawczy do ustawy", "akt wydawany przez koło poselskie", "akt prawny wydawany wyłącznie przez radę ministrów"]
+            },
+            {
+                id: 72,
+                question: "Kurs kwalifikacyjny ma na celu",
+                correct: "uzyskanie wiedzy i umiejętności w zakresie danej dziedziny pielęgniarskiej",
+                options: ["uzyskanie wiedzy i umiejętności w zakresie danej dziedziny pielęgniarskiej", "to inaczej szkolenie specjalistyczne", "to pogłębienie i aktualizacja wiedzy i umiejętności zawodowych pielęgniarski"]
+            },
+            {
+                id: 73,
+                question: "Leczenie odwykowe",
+                correct: "jest dobrowolne",
+                options: ["jest dobrowolne", "trwa co najmniej 36 miesięcy", "jest obowiązkiem każdego uzależnionego"]
+            },
+            {
+                id: 74,
+                question: "Do gabinetu ginekologicznego wchodzi pacjentka z mężem i chce on asystować przy badaniu",
+                correct: "powinien wyprosić męża jeśli pacjentka nie wyraża wyraźnej zgody",
+                options: ["lekarz może odmówić obecności męża w gabinecie tylko w przypadku zabiegów o podwyższonym ryzyku", "powinien wyprosić męża jeśli pacjentka nie wyraża wyraźnej zgody", "powinien pozwolić mężowi bez względu na okoliczności"]
+            },
+            {
+                id: 75,
+                question: "Trybunał konstytucyjny składa się :",
+                correct: "z 15 sędziów wybranych tylko raz na 9-letniś kadencję przez sejm",
+                options: ["z 15 sędziów wybranych tylko raz na 9-letniś kadencję przez sejm", "z 15 sędziów wybranych tylko raz na 9-letniś kadencję przez senat", "9 sędziów wybranych na 15 lat przez prezydenta RP"]
+            },
+            {
+                id: 76,
+                question: "Zasada należytej staranności ma na celu:",
+                correct: "minimalizowanie ryzyka związanego z czynnościami podejmowanymi w procesie udzielania świadczenia zdrowotnego",
+                options: ["Prawidłowość wykonywania zawodu pielęgniarki i położnej", "Przestrzeganie praw pacjenta", "minimalizowanie ryzyka związanego z czynnościami podejmowanymi w procesie udzielania świadczenia zdrowotnego", "Przestrzeganie zasad kodeksu etyki zawodowej."]
+            },
+            {
+                id: 77,
+                question: "Zawód pielęgniarki i położnej należy do zawodów :",
+                correct: "Samodzielnych, wolnych, regulowanych, zaufania publicznego",
+                options: ["Samodzielnych, wolnych, regulowanych, zaufania publicznego", "Regulowanych, wolnych", "Zawodów zaufania publicznego", "Tylko do zawodów wolnych i zaufania publicznego"]
+            },
+            {
+                id: 78,
+                question: "Ustawa o zawodzie pielęgniarki i położnej określa:",
+                correct: "Kształcenie zawodowe i podyplomowe pielęgniarki i położnej oraz zasady wykonywania zawodu i uzyskiwania prawa wykonywania zawodu",
+                options: ["Tylko zasady wykonywanie zawodu pielęgniarki i położnej", "Kształcenie zawodowe i podyplomowe pielęgniarki i położnej oraz zasady wykonywania zawodu i uzyskiwania prawa wykonywania zawodu", "Uzyskania prawa wykonywania zawodu", "Kształcenie zawodowe pielęgniarki i położnej oraz kształcenie podyplomowe pielęgniarki i położnej"]
+            },
+            {
+                id: 79,
+                question: "Pielęgniarka i położna może wykonywać zawód:",
+                correct: "Wszystkie odpowiedzi prawidłowe.",
+                options: ["W ramach umowy o pracę", "W ramach wolontariatu", "W ramach umowy cywilnoprawnej", "Wszystkie odpowiedzi prawidłowe."]
+            },
+            {
+                id: 80,
+                question: "Wykonywanie zawodu pielęgniarki polega na.",
+                correct: "Nauczanie zawodu pielęgniarki i położnej, wykonywanie pracy na rzecz doskonalenia zawodowego pielęgniarek i położnych lub nauczania innych zawodów medycznych, których programy kształcenia wymagają współudziału pielęgniarki lub położnej",
+                options: ["Nauczanie zawodu pielęgniarki i położnej, wykonywanie pracy na rzecz doskonalenia zawodowego pielęgniarek i położnych lub nauczania innych zawodów medycznych, których programy kształcenia wymagają współudziału pielęgniarki lub położnej", "Przygotowania do życia w rodzinie, metod planowania rodziny oraz ochrony macierzyństwa i ojcostwa,", "Realizacji zleceń lekarskich w procesie pielęgnowania.", "Prowadzenie prac naukowo badawczych w zakresie opieki nad kobietą."]
+            },
+            {
+                id: 81,
+                question: "Zawód pielęgniarki wykonywany jest.",
+                correct: "Wszystkie odpowiedzi prawidłowe",
+                options: ["Zgodnie z zasadami etyki zawodowej.", "Z poszanowaniem praw pacjenta", "Z wykorzystaniem aktualnej wiedzy medycznej", "Wszystkie odpowiedzi prawidłowe"]
+            },
+            {
+                id: 82,
+                question: "Członkowie samorządu są zobowiązani:",
+                correct: "Sumiennie wykonywać obowiązki zawodowe, aktualizować dane w rejestrze pielęgniarek i rejestrze położnych, regularnie opłacać składkę członkowską zgodnie z uchwałą Naczelnego Zjazdu Pielęgniarek i Położnych",
+                options: ["Sumiennie wykonywać obowiązki zawodowe", "Tylko regularnie opłacać składkę członkowską", "Sumiennie wykonywać obowiązki zawodowe, aktualizować dane w rejestrze pielęgniarek i rejestrze położnych, regularnie opłacać składkę członkowską.", "Sumiennie wykonywać obowiązki zawodowe, aktualizować dane w rejestrze pielęgniarek i rejestrze położnych, regularnie opłacać składkę członkowską zgodnie z uchwałą Naczelnego Zjazdu Pielęgniarek i Położnych"]
+            },
+            {
+                id: 83,
+                question: "Do zadań samorządu zawodowego NIE należy:",
+                correct: "Negocjowanie wynagrodzeń pielęgniarek i położnych",
+                options: ["Kształcenie podyplomowe pielęgniarek i położnych", "Prowadzenie rejestrów pielęgniarek i położnych", "Negocjowanie wynagrodzeń pielęgniarek i położnych", "Obrona godności zawodowej"]
+            },
+            {
+                id: 84,
+                question: "Najwyższym organem samorządu pielęgniarek i położnych jest:",
+                correct: "Zjazd",
+                options: ["Rada", "Zjazd", "Rzecznik odpowiedzialności zawodowej", "Komisja rewizyjna"]
+            },
+            {
+                id: 85,
+                question: "Nadzwyczajny Okręgowy Zjazd może być zwołany:",
+                correct: "Wszystkie odpowiedzi prawidłowe",
+                options: ["Na wniosek komisji rewizyjnej", "Na wniosek 1/5 członków okręgowej izby", "Z własnej inicjatywy", "Wszystkie odpowiedzi prawidłowe"]
+            },
+            {
+                id: 86,
+                question: "Członkowie samorządu zawodowego pielęgniarek i położnych podlegają odpowiedzialności zawodowej za naruszenie.",
+                correct: "Naruszenia przepisów ustawy o zawodzie pielęgniarki i położnej i Kodeksu Etyki Zawodowej Pielęgniarki i Położnej",
+                options: ["Przepisów ustawy o świadczeniach ustawy o świadczeniach zdrowotnych finansowanych ze środków publicznych.", "Przepisów dotyczących wykonywania zawodu", "Naruszenie zasad etyki zawodowej", "Naruszenia przepisów ustawy o zawodzie pielęgniarki i położnej i Kodeksu Etyki Zawodowej Pielęgniarki i Położnej"]
+            },
+            {
+                id: 87,
+                question: "Kadencja organów samorządu zawodowego pielęgniarek i położnych trwa.",
+                correct: "4 lata",
+                options: ["8 lat", "2 lata", "4 lata", "Bez ograniczeń kadencji"]
+            },
+            {
+                id: 88,
+                question: "Rzecznik odpowiedzialności zawodowej",
+                correct: "Sprawuje funkcję oskarżyciela przed sądem pielęgniarek i położnych",
+                options: ["Sprawuje funkcję oskarżyciela przed sądem pielęgniarek i położnych", "Orzeka o wznowieniu postępowania w przedmiocie odpowiedzialności zawodowej", "Rozpoznaje odwołania od orzeczeń", "Przygotowuje wnioski dotyczące zasad etyki"]
+            },
+            {
+                id: 89,
+                question: "Pielęgniarka wpisana do rejestru, jest obowiązana do niezwłocznego zawiadomienia właściwej okręgowej rady pielęgniarek i położnych o wszelkich zmianach danych",
+                correct: "W terminie 14 dni",
+                options: ["W terminie 1 roku od zaistniałej zmiany", "W terminie 1 miesiąca od zaistniałej zmiany", "W terminie 14 dni", "Niezwłocznie"]
+            },
+            {
+                id: 90,
+                question: "Pielęgniarka/położna, która swoim zachowaniem (działaniem lub zaniechaniem) naruszyła normy prawne, za to samo zachowanie:",
+                correct: "może odpowiadać na gruncie kilku rodzajów odpowiedzialności tylko pod warunkiem, iż owo zachowanie naruszało przepisy z określonych dziedzin prawa,",
+                options: ["może odpowiadać na gruncie kilku rodzajów odpowiedzialności w każdej sytuacji,", "może odpowiadać na gruncie kilku rodzajów odpowiedzialności tylko pod warunkiem, iż owo zachowanie naruszało przepisy z określonych dziedzin prawa,", "nie może odpowiadać na gruncie kilku rodzajów odpowiedzialności,", "to zależy od rodzaju przewinienia."]
+            },
+            {
+                id: 91,
+                question: "Odpowiedzialność zawodowa pielęgniarki/położnej to:",
+                correct: "odpowiedzialność za naruszenie kodeksu etyki zawodowej lub/i przepisów dotyczących wykonywania zawodu przed organami postępowania zawodowego,",
+                options: ["odpowiedzialność za nienależyte wykonywanie obowiązków pracowniczych lub obowiązków wynikających z umowy cywilnoprawnej ponoszona przed pracodawcą,", "odpowiedzialność za nienależyte zachowanie w sferze życia prywatnego przed organami postępowania zawodowego,", "odpowiedzialność za naruszenie kodeksu etyki zawodowej lub/i przepisów dotyczących wykonywania zawodu przed organami postępowania zawodowego,", "odpowiedzialność za naruszenie kodeksu etyki zawodowej"]
+            },
+            {
+                id: 92,
+                question: "Do wykonywanie zawodu pielęgniarki NIE należy.",
+                correct: "Przygotowania do życia w rodzinie, metod planowania rodziny oraz ochrony macierzyństwa i ojcostwa,",
+                options: ["Realizacji zleceń lekarskich w procesie diagnostyki, leczenia i rehabilitacji", "Przygotowania do życia w rodzinie, metod planowania rodziny oraz ochrony macierzyństwa i ojcostwa,", "Realizacji zleceń lekarskich w procesie pielęgnowania.", "Prowadzenie prac naukowo badawczych w zakresie pielęgniarstwa"]
+            },
+            {
+                id: 93,
+                question: "Do pełnienia funkcji rzecznika odpowiedzialności zawodowej, jego zastępcy oraz członków sądów pielęgniarek i położnych mogą kandydować pielęgniarki i położne wykonujące zawód nieprzerwanie co najmniej od:",
+                correct: "10 lat",
+                options: ["2 lat", "5 lat", "brak ograniczenia", "10 lat"]
+            },
+            {
+                id: 94,
+                question: "Do kursu specjalizacyjnego może przystąpić pielęgniarka, która:",
+                correct: "Pracowała w zawodzie co najmniej przez 2 lata w okresie ostatnich 5 lat",
+                options: ["Pracowała w zawodzie co najmniej przez 2 lata w okresie ostatnich 5 lat", "Ukończyła studia II stopnia", "Posiada kurs kwalifikacyjny w dziedzinie specjalizacji", "Uzyskała zgodę pracodawcy"]
+            },
+            {
+                id: 95,
+                question: "Do kursu dokształcającego mogą przystąpić pielęgniarki, die, które:",
+                correct: "Zostały zakwalifikowane do odbycia kursu dokształcającego przez organizatora kształcenia za pośrednictwem SMK.",
+                options: ["Zostały zakwalifikowane do odbycia kursu dokształcającego przez organizatora kształcenia za pośrednictwem SMK.", "Posiadają 2 letni staż pracy", "Uzyskały zgodę kierownika podmiotu leczniczego", "Posiadają co najmniej tytuł licencjata"]
+            },
+            {
+                id: 96,
+                question: "Pielęgniarka/położna wezwana w charakterze świadka...ma obowiązek stawiennictwa osobistego, inaczej grozi jej",
+                correct: "nałożenie kary za nieusprawiedliwione niestawiennictwo albo za odmowę zeznań lub przymusowe sprowadzenie świadka",
+                options: ["nałożenie kary za nieusprawiedliwione niestawiennictwo albo za odmowę zeznań lub przymusowe sprowadzenie świadka", "nałożenie kary za nieusprawiedliwione niestawiennictwo albo za odmowę zeznań", "przymusowe sprowadzenie świadka", "wszczęcie postępowania karnego wobec świadka"]
+            },
+            {
+                id: 97,
+                question: "Pielęgniarka/położna korzysta z ochrony przewidzianej dla funkcjonariuszy publicznych na zasadach określonych w ustawie",
+                correct: "tylko podczas i w związku z wykonywaniem czynności ..świadczeń zdrowotnych",
+                options: ["tylko podczas i w związku z wykonywaniem czynności ..świadczeń zdrowotnych", "zarówno podczas pracy jak i życiu prywatnym", "gdy udziela świadczeń funkcjonariuszom publicznym", "gdy jest zatrudniona w podmiotach leczniczych które udzielają świadczeń zdrowotnych"]
+            },
+            {
+                id: 98,
+                question: "W przypadku gdy pracownik wyrządzi szkodę pracodawcy.. może on dochodzić odszkodowania w wysokości",
+                correct: "w wysokości wyrządzonej szkody jednak wysokość odszkodowania nie może przekroczyć kwoty trzymiesięcznego wynagrodzenia pracownika",
+                options: ["w pełnej wysokości wyrządzonej szkody", "w wysokości wyrządzonej szkody jednak wysokość odszkodowania nie może przekroczyć kwoty trzymiesięcznego wynagrodzenia pracownika", "w wysokości wyrządzonej szkody jednak wysokość odszkodowania nie może przekroczyć kwoty dwumiesięcznego wynagrodzenia pracownika", "w wysokości wyrządzonej szkody jednak wysokość odszkodowania nie może przekroczyć kwoty miesięcznego wynagrodzenia pracownika"]
+            },
+            {
+                id: 99,
+                question: "Regulację dotyczącą czasu pracy pracowników zatrudnionych służby zdrowia zapisane są :",
+                correct: "w ustawie o działalności leczniczej",
+                options: ["w ustawie o działalności leczniczej", "w ustawie o zawodach pielęgniarek i położnych", "w ustawie o zawodach lekarzy i lekarzy dentysty", "w ustawie o zawodach pielęgniarek i położnych w zakresie dotyczącym pielęgniarek i w ustawie o zawodach lekarzy.."]
+            },
+            {
+                id: 100,
+                question: "Za nieprzestrzeganie przez pracownika Pracodawca może stosować:",
+                correct: "karę upomnienia lub karę nagany",
+                options: ["karę upomnienia lub karę nagany", "karę upomnienia oraz karę nagany", "tylko karę nagany", "tylko karę upomnienia"]
+            }
+        ];
+
+        const userAnswers = {};
+
+        function renderQuiz() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = "bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300";
+                qDiv.id = `q-card-${q.id}`;
+
+                let optionsHTML = '';
+                q.options.forEach(opt => {
+                    optionsHTML += `
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors relative group">
+                            <input type="radio" name="q-${q.id}" value="${opt.replace(/"/g, '&quot;')}" 
+                                   onclick="selectAnswer(${q.id}, this.value)" 
+                                   class="mt-1 h-4 w-4 text-teal-600 border-slate-300 focus:ring-teal-500">
+                            <span class="text-sm font-medium text-slate-700 leading-tight">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                qDiv.innerHTML = `
+                    <div class="p-4 border-b border-slate-100 bg-slate-50/50">
+                        <h3 class="text-sm md:text-base font-bold text-slate-900 leading-snug">Pytanie ${q.id}.</h3>
+                        <p class="text-slate-700 mt-1">${q.question}</p>
+                    </div>
+                    <div class="p-4 space-y-2" id="options-container-${q.id}">
+                        ${optionsHTML}
+                    </div>
+                    <div class="hidden px-4 py-3 bg-slate-50 border-t border-slate-100 flex flex-col text-xs md:text-sm" id="feedback-${q.id}">
+                    </div>
+                `;
+                container.appendChild(qDiv);
+            });
+            updateStats();
+        }
+
+        function selectAnswer(questionId, selectedValue) {
+            userAnswers[questionId] = selectedValue;
+            
+            const question = quizData.find(q => q.id === questionId);
+            const isCorrect = (selectedValue === question.correct);
+
+            const card = document.getElementById(`q-card-${questionId}`);
+            if (isCorrect) {
+                card.className = "bg-white rounded-xl shadow-md border-l-4 border-l-emerald-500 border-slate-200 overflow-hidden transition-all duration-300";
+            } else {
+                card.className = "bg-white rounded-xl shadow-md border-l-4 border-l-rose-500 border-slate-200 overflow-hidden transition-all duration-300";
+            }
+
+            const feedbackArea = document.getElementById(`feedback-${questionId}`);
+            feedbackArea.className = `px-4 py-3 border-t border-slate-100 flex flex-col text-xs md:text-sm ${isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}`;
+            
+            const statusText = isCorrect 
+                ? `<span class="font-bold">✓ Prawidłowo!</span>` 
+                : `<span class="font-bold">✗ Odpowiedź błędna. Poprawna to: <u>${question.correct}</u></span>`;
+            
+            feedbackArea.innerHTML = statusText;
+            feedbackArea.style.display = 'flex';
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const answeredCount = Object.keys(userAnswers).length;
+            let correctCount = 0;
+
+            quizData.forEach(q => {
+                if (userAnswers[q.id] === q.correct) {
+                    correctCount++;
+                }
+            });
+
+            document.getElementById('stats-counter').innerText = `Rozwiązano: ${answeredCount} z ${quizData.length} pytań`;
+            document.getElementById('score-display').innerText = `${correctCount} / ${quizData.length}`;
+            
+            const percentage = Math.round((answeredCount / quizData.length) * 100) || 0;
+            const scorePercentage = Math.round((correctCount / quizData.length) * 100) || 0;
+            document.getElementById('percent-display').innerText = `Postęp: ${percentage}% (Bieżący wynik: ${scorePercentage}%)`;
+        }
+
+        function showAllCorrectAnswers() {
+            quizData.forEach(q => {
+                const feedbackArea = document.getElementById(`feedback-${q.id}`);
+                feedbackArea.className = "px-4 py-2 border-t border-slate-100 flex flex-col text-xs bg-emerald-50 text-emerald-800";
+                feedbackArea.innerHTML = `<span class="font-bold">Poprawna odpowiedź: <u>${q.correct}</u></span>`;
+                feedbackArea.style.display = 'flex';
+                
+                const card = document.getElementById(`q-card-${q.id}`);
+                card.className = "bg-white rounded-xl shadow-md border-l-4 border-l-emerald-500 border-slate-200 overflow-hidden transition-all duration-300";
+            });
+        }
+
+        function resetTest() {
+            for (let key in userAnswers) {
+                delete userAnswers[key];
+            }
+            renderQuiz();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
